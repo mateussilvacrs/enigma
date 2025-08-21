@@ -82,8 +82,11 @@
     </style>
   </head>
   <body>
-    <h1>Fase Final</h1>
-    <p>Digite o código secreto ou as letras que você encontrou:</p>
+    <h1>Fase secreta</h1>
+    <p>
+      Digite o código secreto ou as letras que você encontrou o último número
+      você já sabe qual é:
+    </p>
     <input
       type="text"
       id="codeInput"
@@ -93,7 +96,7 @@
     />
     <div id="hint"></div>
 
-    <!-- POPUP 1: Primeiro 030614 -->
+    <!-- POPUP 1: Primeiro 030624 -->
     <div id="popupMissing" class="popup">
       <div class="popup-content">
         <h2>🤔 Parece que está faltando algo!</h2>
@@ -120,7 +123,7 @@
     <div id="popupAnd" class="popup">
       <div class="popup-content">
         <h2>🎉 Símbolo desbloqueado!</h2>
-        <p>Você encontrou o &! Agora complete o código final: 030614&</p>
+        <p>Você encontrou o &! Agora complete o código final: 030624&</p>
         <button onclick="closePopup('popupAnd')">Continuar</button>
       </div>
     </div>
@@ -186,8 +189,8 @@
       input.addEventListener("input", () => {
         const val = input.value.toUpperCase().replace(/\s/g, "");
 
-        // Primeiro 030614 → popup inicial
-        if (!secondDivCreated && val === "030614") {
+        // Primeiro 030624 → popup inicial
+        if (!secondDivCreated && val === "030624") {
           showPopup("popupMissing");
         }
 
@@ -205,7 +208,7 @@
         }
 
         // Código final completo
-        if (val === "030614&") {
+        if (val === "030624&") {
           showPopup("popupFull");
         }
       });

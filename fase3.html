@@ -86,12 +86,65 @@
         width: 150px;
         margin: 15px 0;
       }
+      /* Ajuste específico para celular */
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 20px;
+          text-align: center;
+        }
+
+        #scoreDisplay {
+          font-size: 14px;
+        }
+
+        canvas {
+          border: 2px solid white;
+          background: black;
+          width: 80%;
+        }
+
+        .controls {
+          grid-template-columns: 60px 60px 60px;
+          grid-template-rows: 60px 60px;
+          gap: 6px;
+        }
+
+        .controls button {
+          font-size: 20px;
+          padding: 8px;
+        }
+
+        .popup-content {
+          width: 90%;
+          max-width: 250px;
+          font-size: 14px;
+        }
+
+        .popup-content img {
+          width: 120px;
+        }
+      }
+
+      .info-game {
+        padding: 0;
+        margin: 0;
+        align-items: center;
+        text-align: center;
+      }
+
+      .info-game p {
+        padding: 0;
+        margin: 0;
+        font-size: 14px;
+      }
     </style>
   </head>
   <body>
-    <h1>Fase Difícil - Labirinto Seguro</h1>
-    <p>Chegue ao objetivo em 20 segundos!</p>
-    <div id="timer">Tempo restante: 20s</div>
+    <div class="info-game">
+      <h1>Fase Difícil - Labirinto Seguro</h1>
+      <p>Chegue ao objetivo em 30 segundos!</p>
+      <div id="timer">Tempo restante: 30s</div>
+    </div>
     <canvas id="maze" width="450" height="450"></canvas>
 
     <div class="controls">
@@ -227,7 +280,7 @@
         }
         if (player.x === goal.x && player.y === goal.y) {
           clearInterval(timerInterval);
-          showWinPopup("1");
+          showWinPopup("0");
         }
       }
 
@@ -238,7 +291,7 @@
         else if (e.key === "ArrowRight") move("RIGHT");
       });
 
-      let timeLeft = 20;
+      let timeLeft = 30;
       const timerDisplay = document.getElementById("timer");
       const timerInterval = setInterval(() => {
         timeLeft--;

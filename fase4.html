@@ -87,6 +87,44 @@
       #timer {
         margin-top: 10px;
       }
+      /* Ajuste específico para celular */
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 20px;
+          text-align: center;
+        }
+
+        #scoreDisplay {
+          font-size: 14px;
+        }
+
+        canvas {
+          border: 2px solid white;
+          background: black;
+          width: 80%;
+        }
+
+        .controls {
+          grid-template-columns: 60px 60px 60px;
+          grid-template-rows: 60px 60px;
+          gap: 6px;
+        }
+
+        .controls button {
+          font-size: 20px;
+          padding: 8px;
+        }
+
+        .popup-content {
+          width: 90%;
+          max-width: 250px;
+          font-size: 14px;
+        }
+
+        .popup-content img {
+          width: 120px;
+        }
+      }
     </style>
   </head>
   <body>
@@ -218,7 +256,7 @@
       function checkAnswer(color) {
         clearInterval(timerInterval);
         if (color === correctColor) {
-          showWinPopup("1");
+          showWinPopup("6");
         } else {
           showLosePopup();
         }
