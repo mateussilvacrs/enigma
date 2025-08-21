@@ -287,15 +287,7 @@
         const heightThreshold =
           window.outerHeight - window.innerHeight > threshold;
         devtoolsOpen = widthThreshold || heightThreshold;
-
-        if (devtoolsOpen) {
-          alert(
-            "Inspecionar código detectado! Jogo pode não funcionar corretamente."
-          );
-          // Você pode até redirecionar:
-          // window.location.href = "fase1.html";
-        }
-      }, 1000);
+      });
     </script>
   </body>
 </html>
