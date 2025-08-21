@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fase Difícil - Labirinto Seguro</title>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background: #111;
+        color: white;
+        font-family: Arial, sans-serif;
+      }
+      canvas {
+        background: black;
+        border: 2px solid white;
+        margin-top: 10px;
+      }
+      #timer {
+        font-size: 20px;
+        margin: 10px;
+      }
+      .controls {
+        display: grid;
+        grid-template-columns: 60px 60px 60px;
+        grid-template-rows: 60px 60px;
+        gap: 10px;
+        margin-top: 20px;
+      }
+      .controls button {
+        font-size: 24px;
+        border: none;
+        border-radius: 10px;
+        background: #444;
+        color: white;
+      }
+      .controls button:active {
+        background: #666;
+      }
+      .popup {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        justify-content: center;
+        align-items: center;
+      }
+      .popup-content {
+        background: white;
+        color: black;
+        padding: 20px;
+        border-radius: 15px;
+        text-align: center;
+        width: 80%;
+        max-width: 300px;
+        animation: scaleUp 0.3s ease;
+      }
+      @keyframes scaleUp {
+        from {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      .popup-content button {
+        margin-top: 15px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        background: green;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      .popup-content img {
+        width: 150px;
+        margin: 15px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Fase Difícil - Labirinto Seguro</h1>
+    <p>Chegue ao objetivo em 20 segundos!</p>
+    <div id="timer">Tempo restante: 20s</div>
+    <canvas id="maze" width="450" height="450"></canvas>
+
+    <div class="controls">
+      <div></div>
+      <button onclick="move('UP')">⬆️</button>
+      <div></div>
+      <button onclick="move('LEFT')">⬅️</button>
+      <button onclick="move('DOWN')">⬇️</button>
+      <button onclick="move('RIGHT')">➡️</button>
+    </div>
+
+    <div id="popupWin" class="popup">
+      <div class="popup-content">
+        <h2>🎉 Número desbloqueado!</h2>
+        <img src="assets/vitoria.jpg" alt="Vitória" />
+        <p id="unlocked"></p>
+        <button onclick="nextLevel()">Continuar</button>
+      </div>
+    </div>
+
+    <div id="popupLose" class="popup">
+      <div class="popup-content">
+        <h2>💥 Você perdeu!</h2>
+        <img src="assets/perdeu.jpg" alt="Perdeu" />
+        <p>Voltando para a Fase 1...</p>
+        <button onclick="restartGame()">Reiniciar</button>
+      </div>
+    </div>
+
+    <!-- POPUP DE ACESSO NEGADO -->
+    <div id="popupBlocked" class="popup">
+      <div class="popup-content">
+        <h2>⚠️ Acesso negado!</h2>
+        <p>Querendo burlar o jogo né boboca?</p>
+        <img src="assets/trapaca.jpg" alt="Perdeu" />
+        <button onclick="goBack()">Voltar para a Fase 2</button>
+      </div>
+    </div>
+
+    <script>
+      // Checa se a fase anterior foi completada
+      window.addEventListener("load", () => {
+        const fase2Completa = localStorage.getItem("fase2Completa");
+        if (!fase2Completa) {
+          document.getElementById("popupBlocked").style.display = "flex";
+        }
+      });
+
+      function goBack() {
+        window.location.href = "fase2.html";
+      }
+      const canvas = document.getElementById("maze");
+      const ctx = canvas.getContext("2d");
+      const box = 30;
+      const rows = 15,
+        cols = 15;
+      let player = { x: 1, y: 1 };
+      let goal = { x: cols - 2, y: rows - 2 };
+      let maze = [];
+
+      // Geração de labirinto com DFS (sempre conectável)
+      function generateMazeDFS() {
+        maze = [];
+        for (let y = 0; y < rows; y++) {
+          maze[y] = [];
+          for (let x = 0; x < cols; x++) {
+            maze[y][x] = 1;
+          } // paredes
+        }
+
+        function shuffle(arr) {
+          return arr.sort(() => Math.random() - 0.5);
+        }
+
+        function carve(x, y) {
+          maze[y][x] = 0;
+          let dirs = shuffle([
+            [0, -2],
+            [2, 0],
+            [0, 2],
+            [-2, 0],
+          ]);
+          for (let [dx, dy] of dirs) {
+            let nx = x + dx,
+              ny = y + dy;
+            if (
+              nx > 0 &&
+              nx < cols - 1 &&
+              ny > 0 &&
+              ny < rows - 1 &&
+              maze[ny][nx] === 1
+            ) {
+              maze[y + dy / 2][x + dx / 2] = 0;
+              carve(nx, ny);
+            }
+          }
+        }
+        carve(1, 1);
+      }
+
+      generateMazeDFS();
+
+      function draw() {
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        for (let y = 0; y < rows; y++) {
+          for (let x = 0; x < cols; x++) {
+            if (maze[y][x] === 1) {
+              ctx.fillStyle = "white";
+              ctx.fillRect(x * box, y * box, box, box);
+            }
+          }
+        }
+        ctx.fillStyle = "green";
+        ctx.fillRect(goal.x * box, goal.y * box, box, box);
+        ctx.fillStyle = "red";
+        ctx.fillRect(player.x * box, player.y * box, box, box);
+      }
+
+      draw();
+
+      function move(dir) {
+        let nx = player.x,
+          ny = player.y;
+        if (dir === "UP") ny--;
+        if (dir === "DOWN") ny++;
+        if (dir === "LEFT") nx--;
+        if (dir === "RIGHT") nx++;
+        if (maze[ny][nx] === 0) {
+          player.x = nx;
+          player.y = ny;
+          draw();
+        }
+        if (player.x === goal.x && player.y === goal.y) {
+          clearInterval(timerInterval);
+          showWinPopup("1");
+        }
+      }
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowUp") move("UP");
+        else if (e.key === "ArrowDown") move("DOWN");
+        else if (e.key === "ArrowLeft") move("LEFT");
+        else if (e.key === "ArrowRight") move("RIGHT");
+      });
+
+      let timeLeft = 20;
+      const timerDisplay = document.getElementById("timer");
+      const timerInterval = setInterval(() => {
+        timeLeft--;
+        timerDisplay.innerText = `Tempo restante: ${timeLeft}s`;
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          showLosePopup();
+        }
+      }, 1000);
+
+      function showWinPopup(num) {
+        document.getElementById(
+          "unlocked"
+        ).innerHTML = `Você desbloqueou o número: <b>${num}</b><br><br>⚠️ Se perder em outra fase, volta para o início!`;
+        document.getElementById("popupWin").style.display = "flex";
+        // Aqui devemos marcar a fase 1 como completada:
+        completarFase2();
+      }
+      function showLosePopup() {
+        document.getElementById("popupLose").style.display = "flex";
+      }
+      function restartGame() {
+        window.location.href = "fase1.html";
+      }
+      function nextLevel() {
+        window.location.href = "fase4.html";
+      }
+      function completarFase2() {
+        localStorage.setItem("fase3Completa", "true");
+      }
+
+      let devtoolsOpen = false;
+
+      const threshold = 160; // tamanho mínimo para detectar DevTools
+
+      setInterval(() => {
+        const widthThreshold =
+          window.outerWidth - window.innerWidth > threshold;
+        const heightThreshold =
+          window.outerHeight - window.innerHeight > threshold;
+        devtoolsOpen = widthThreshold || heightThreshold;
+
+        if (devtoolsOpen) {
+          alert(
+            "Inspecionar código detectado! Jogo pode não funcionar corretamente."
+          );
+          // Você pode até redirecionar:
+          // window.location.href = "fase1.html";
+        }
+      }, 1000);
+    </script>
+  </body>
+</html>

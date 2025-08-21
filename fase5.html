@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fase 5 - Jogo das Cores Difícil</title>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background: #111;
+        color: white;
+        font-family: Arial, sans-serif;
+      }
+      h1,
+      p {
+        margin: 5px;
+        text-align: center;
+      }
+      .buttons {
+        display: grid;
+        grid-template-columns: repeat(2, 140px);
+        gap: 15px;
+        margin-top: 20px;
+      }
+      .buttons button {
+        font-size: 18px;
+        padding: 15px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        color: white;
+      }
+      .popup {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        justify-content: center;
+        align-items: center;
+      }
+      .popup-content {
+        background: white;
+        color: black;
+        padding: 20px;
+        border-radius: 15px;
+        text-align: center;
+        width: 80%;
+        max-width: 300px;
+        animation: scaleUp 0.3s ease;
+      }
+
+      .popup-content img {
+        width: 150px;
+        margin: 15px 0;
+      }
+
+      @keyframes scaleUp {
+        from {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      .popup-content button {
+        margin-top: 15px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        background: green;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      #challenge {
+        font-size: 30px;
+        margin: 10px;
+        font-weight: bold;
+      }
+      #timer {
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Fase 5 - Jogo das Cores Difícil</h1>
+    <p>Escolha a opção que corresponde à cor do NOME escrito!</p>
+    <div id="challenge">VERDE</div>
+    <div class="buttons" id="colorButtons"></div>
+    <div id="timer">Tempo restante: 7s</div>
+
+    <!-- POPUP DE VITÓRIA -->
+    <div id="popupWin" class="popup">
+      <div class="popup-content">
+        <h2>🎉 Número desbloqueado!</h2>
+        <img src="assets/vitoria.jpg" alt="Vitória" />
+        <p id="unlocked"></p>
+        <button onclick="showNextStagePopup()">Continuar</button>
+      </div>
+    </div>
+
+    <!-- POPUP DE ETAPA 2 -->
+    <div id="popupNextStage" class="popup">
+      <div class="popup-content">
+        <h2>🚀 Etapa 2 desbloqueada!</h2>
+        <p>
+          Você passou para a etapa 2! Não se preocupe: se você errar agora, não
+          vai começar tudo de novo.
+        </p>
+        <button onclick="nextLevel()">Ok!</button>
+      </div>
+    </div>
+
+    <div id="popupLose" class="popup">
+      <div class="popup-content">
+        <h2>💥 Você perdeu!</h2>
+        <img src="assets/perdeu.jpg" alt="Perdeu" />
+        <p>Voltando para a Fase 1...</p>
+        <button onclick="restartGame()">Reiniciar</button>
+      </div>
+    </div>
+
+    <!-- POPUP DE ACESSO NEGADO -->
+    <div id="popupBlocked" class="popup">
+      <div class="popup-content">
+        <h2>⚠️ Acesso negado!</h2>
+        <p>Querendo burlar o jogo né boboca?</p>
+        <img src="assets/trapaca.jpg" alt="Perdeu" />
+        <button onclick="goBack()">Voltar para a Fase 4</button>
+      </div>
+    </div>
+
+    <script>
+      // Checa se a fase anterior foi completada
+      window.addEventListener("load", () => {
+        const fase3Completa = localStorage.getItem("fase3Completa");
+        if (!fase3Completa) {
+          document.getElementById("popupBlocked").style.display = "flex";
+        }
+      });
+      function goBack() {
+        window.location.href = "fase4.html";
+      }
+      const colors = [
+        "VERDE",
+        "VERMELHO",
+        "AZUL",
+        "ROXO",
+        "AMARELO",
+        "LARANJA",
+      ];
+      const colorMap = {
+        VERDE: "green",
+        AZUL: "blue",
+        VERMELHO: "red",
+        ROXO: "purple",
+        AMARELO: "yellow",
+        LARANJA: "orange",
+      };
+      let correctColor = "";
+      let timer = 5;
+      let timerInterval;
+
+      function shuffle(array) {
+        return array.sort(() => Math.random() - 0.5);
+      }
+
+      function startRound() {
+        timer = 7;
+        clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+          timer--;
+          document.getElementById(
+            "timer"
+          ).innerText = `Tempo restante: ${timer}s`;
+          if (timer <= 0) {
+            clearInterval(timerInterval);
+            showLosePopup();
+          }
+        }, 1000);
+
+        correctColor = colors[Math.floor(Math.random() * colors.length)];
+        const visualColor = colors[Math.floor(Math.random() * colors.length)];
+        document.getElementById("challenge").innerText = correctColor;
+        document.getElementById("challenge").style.color =
+          colorMap[visualColor];
+
+        let wrongOptions = shuffle(
+          colors.filter((c) => c !== correctColor)
+        ).slice(0, 3);
+        let options = shuffle([correctColor, ...wrongOptions]);
+        const colorButtonsDiv = document.getElementById("colorButtons");
+        colorButtonsDiv.innerHTML = "";
+
+        options.forEach((opt) => {
+          const btn = document.createElement("button");
+          btn.innerText = opt;
+
+          // Cor de fundo
+          if (opt === correctColor)
+            btn.style.backgroundColor = colorMap[correctColor];
+          else
+            btn.style.backgroundColor =
+              colorMap[shuffle(colors.filter((c) => c !== correctColor))[0]];
+
+          // Cor do texto aleatória
+          let textColors = shuffle(
+            colors.filter((c) => colorMap[c] !== btn.style.backgroundColor)
+          );
+          btn.style.color = colorMap[textColors[0]];
+
+          btn.onclick = () => checkAnswer(opt);
+          colorButtonsDiv.appendChild(btn);
+        });
+      }
+
+      function checkAnswer(color) {
+        clearInterval(timerInterval);
+        if (color === correctColor) showWinPopup("1");
+        else showLosePopup();
+      }
+
+      function showWinPopup(num) {
+        document.getElementById(
+          "unlocked"
+        ).innerHTML = `Você desbloqueou o número: <b>${num}`;
+        document.getElementById("popupWin").style.display = "flex";
+        // Aqui devemos marcar a fase 1 como completada:
+        completarFase5();
+      }
+
+      function showNextStagePopup() {
+        document.getElementById("popupWin").style.display = "none";
+        document.getElementById("popupNextStage").style.display = "flex";
+      }
+
+      function showLosePopup() {
+        document.getElementById("popupLose").style.display = "flex";
+      }
+
+      function restartGame() {
+        window.location.href = "fase1.html";
+      }
+      function nextLevel() {
+        window.location.href = "index2.html";
+      }
+
+      // teclado 1-4
+      document.addEventListener("keydown", (e) => {
+        const buttons = document.getElementById("colorButtons").children;
+        if (e.key === "1") checkAnswer(buttons[0].innerText);
+        if (e.key === "2") checkAnswer(buttons[1].innerText);
+        if (e.key === "3") checkAnswer(buttons[2].innerText);
+        if (e.key === "4") checkAnswer(buttons[3].innerText);
+      });
+
+      startRound();
+
+      function completarFase4() {
+        localStorage.setItem("fase5Completa", "true");
+      }
+    </script>
+  </body>
+</html>

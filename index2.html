@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fase - Código Secreto</title>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background: #111;
+        color: white;
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+      h1,
+      p {
+        margin: 5px;
+        text-align: center;
+      }
+      input {
+        padding: 10px 15px;
+        font-size: 18px;
+        border-radius: 8px;
+        border: none;
+        margin-top: 15px;
+        width: 200px;
+        text-align: center;
+        background: #222;
+        color: white;
+      }
+      .popup {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        justify-content: center;
+        align-items: center;
+        z-index: 999;
+      }
+      .popup-content {
+        background: white;
+        color: black;
+        padding: 20px;
+        border-radius: 15px;
+        text-align: center;
+        width: 80%;
+        max-width: 300px;
+        animation: scaleUp 0.3s ease;
+      }
+      @keyframes scaleUp {
+        from {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      .popup-content button {
+        margin-top: 15px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        background: green;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+      }
+
+      .popup-content img {
+        width: 150px;
+        margin: 15px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Fase Final</h1>
+    <p>Digite o código secreto ou as letras que você encontrou:</p>
+    <input
+      type="text"
+      id="codeInput"
+      placeholder="Digite aqui..."
+      maxlength="7"
+      autofocus
+    />
+    <div id="hint"></div>
+
+    <!-- POPUP 1: Primeiro 030614 -->
+    <div id="popupMissing" class="popup">
+      <div class="popup-content">
+        <h2>🤔 Parece que está faltando algo!</h2>
+        <p>Tente digitar novamente com cuidado.</p>
+        <button onclick="tryAgain()">Tentar novamente</button>
+      </div>
+    </div>
+
+    <!-- POPUP DA DICA -->
+    <div id="popupHint" class="popup">
+      <div class="popup-content">
+        <h2>🕵️‍♀️ Enigma</h2>
+        <p>
+          Parece que eu esqueci de algo, ajude-me nesse enigma e veja sua
+          surpresa. Acho que você vai precisar de um computador e da sua irmã
+          aquela chata. Acho que deve ter algo na Steam, que tal ConTRoLar
+          Ficar? nos comentários e ver um número que não é número?
+        </p>
+        <button onclick="closeHint()">Entendi!</button>
+      </div>
+    </div>
+
+    <!-- POPUP 3: Desbloqueio & com AMOVC -->
+    <div id="popupAnd" class="popup">
+      <div class="popup-content">
+        <h2>🎉 Símbolo desbloqueado!</h2>
+        <p>Você encontrou o &! Agora complete o código final: 030614&</p>
+        <button onclick="closePopup('popupAnd')">Continuar</button>
+      </div>
+    </div>
+
+    <!-- POPUP 4: Código completo -->
+    <div id="popupFull" class="popup">
+      <div class="popup-content">
+        <h2>🎉 Código completo!</h2>
+        <p>Parabéns! Você completou a proxima fase é a final.</p>
+        <button onclick="nextLevel()">Próxima Fase</button>
+      </div>
+    </div>
+
+    <!-- POPUP DE ACESSO NEGADO -->
+    <div id="popupBlocked" class="popup">
+      <div class="popup-content">
+        <h2>⚠️ Acesso negado!</h2>
+        <p>Querendo burlar o jogo né boboca?</p>
+        <img src="assets/trapaca.jpg" alt="Perdeu" />
+        <button onclick="goBack()">Voltar para a Fase 5</button>
+      </div>
+    </div>
+
+    <script>
+      // Checa se a fase anterior foi completada
+      window.addEventListener("load", () => {
+        const fase3Completa = localStorage.getItem("fase3Completa");
+        if (!fase3Completa) {
+          document.getElementById("popupBlocked").style.display = "flex";
+        }
+      });
+      function goBack() {
+        window.location.href = "fase5.html";
+      }
+      const input = document.getElementById("codeInput");
+      let secondDivCreated = false;
+      let andUnlocked = false;
+
+      function showPopup(id) {
+        document.getElementById(id).style.display = "flex";
+      }
+      function closePopup(id) {
+        document.getElementById(id).style.display = "none";
+        input.value = "";
+        input.focus();
+      }
+      function tryAgain() {
+        closePopup("popupMissing");
+        if (!secondDivCreated) {
+          const div = document.createElement("div");
+          div.id = "secondAttempt";
+          document.body.insertBefore(div, input.nextSibling);
+          secondDivCreated = true;
+        }
+      }
+      function closeHint() {
+        closePopup("popupHint");
+      }
+      function nextLevel() {
+        window.location.href = "fase6.html";
+      }
+
+      input.addEventListener("input", () => {
+        const val = input.value.toUpperCase().replace(/\s/g, "");
+
+        // Primeiro 030614 → popup inicial
+        if (!secondDivCreated && val === "030614") {
+          showPopup("popupMissing");
+        }
+
+        // Segunda tentativa 03 → popup de dica
+        if (secondDivCreated && val === "03" && !andUnlocked) {
+          showPopup("popupHint");
+        }
+
+        // Digitar AMOVC → desbloqueia & e destrói popup “faltando algo”
+        if (val === "AMOVC" && !andUnlocked) {
+          showPopup("popupAnd");
+          andUnlocked = true;
+          closePopup("popupMissing"); // garante que não aparece mais
+          closePopup("popupHint"); // caso estivesse aberto
+        }
+
+        // Código final completo
+        if (val === "030614&") {
+          showPopup("popupFull");
+        }
+      });
+
+      function completarFaseSC() {
+        localStorage.setItem("fase5Completa", "true");
+      }
+    </script>
+  </body>
+</html>

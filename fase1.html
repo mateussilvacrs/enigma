@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fase 1 - Snake Infinita com Bombas</title>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        height: 100vh;
+        margin: 0;
+        background: #111;
+        color: white;
+        font-family: Arial, sans-serif;
+      }
+      canvas {
+        border: 2px solid white;
+        background: black;
+      }
+      .controls {
+        display: grid;
+        grid-template-columns: 80px 80px 80px;
+        grid-template-rows: 80px 80px;
+        gap: 10px;
+        margin-top: 20px;
+      }
+      .controls button {
+        font-size: 20px;
+        border: none;
+        border-radius: 10px;
+        background: #444;
+        color: white;
+      }
+      .controls button:active {
+        background: #666;
+      }
+      .popup {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        justify-content: center;
+        align-items: center;
+        z-index: 999;
+      }
+      .popup-content {
+        background: white;
+        color: black;
+        padding: 20px;
+        border-radius: 15px;
+        text-align: center;
+        width: 80%;
+        max-width: 300px;
+        animation: scaleUp 0.3s ease;
+      }
+      @keyframes scaleUp {
+        from {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      .popup-content button {
+        margin-top: 15px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        background: green;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      .popup-content img {
+        width: 150px;
+        margin: 15px 0;
+      }
+      #scoreDisplay {
+        font-size: 18px;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🐍 Fase 1 - Snake</h1>
+    <div id="scoreDisplay">Pontuação: 0 | Faltam: 10</div>
+    <canvas id="game" width="400" height="400"></canvas>
+
+    <div class="controls">
+      <div></div>
+      <button onclick="direction('UP')">⬆️</button>
+      <div></div>
+      <button onclick="direction('LEFT')">⬅️</button>
+      <button onclick="direction('DOWN')">⬇️</button>
+      <button onclick="direction('RIGHT')">➡️</button>
+    </div>
+
+    <!-- POPUP DE VITÓRIA -->
+    <div id="popupWin" class="popup">
+      <div class="popup-content">
+        <h2>🎉 Número desbloqueado!</h2>
+        <img src="assets/vitoria.jpg" alt="Vitória" />
+        <p id="unlocked"></p>
+        <button onclick="nextLevel()">Continuar</button>
+      </div>
+    </div>
+
+    <!-- POPUP DE DERROTA -->
+    <div id="popupLose" class="popup">
+      <div class="popup-content">
+        <h2>💥 Você perdeu!</h2>
+        <img src="assets/perdeu.jpg" alt="Perdeu" />
+        <p>Voltando para o início...</p>
+        <button onclick="restartGame()">Reiniciar</button>
+      </div>
+    </div>
+
+    <script>
+      const canvas = document.getElementById("game");
+      const ctx = canvas.getContext("2d");
+      const box = 20;
+      const rows = canvas.height / box;
+      const cols = canvas.width / box;
+
+      let snake = [{ x: 9 * box, y: 10 * box }];
+      let dir;
+      let score = 0;
+      let gameStarted = false;
+      let game;
+
+      // comida e bombas
+      let food = {
+        x: Math.floor(Math.random() * cols) * box,
+        y: Math.floor(Math.random() * rows) * box,
+      };
+      let bombs = [];
+      const numBombs = 5;
+      for (let i = 0; i < numBombs; i++) {
+        bombs.push({
+          x: Math.floor(Math.random() * cols) * box,
+          y: Math.floor(Math.random() * rows) * box,
+        });
+      }
+
+      // teclado
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowUp") direction("UP");
+        else if (e.key === "ArrowDown") direction("DOWN");
+        else if (e.key === "ArrowLeft") direction("LEFT");
+        else if (e.key === "ArrowRight") direction("RIGHT");
+      });
+
+      function direction(d) {
+        if (!gameStarted) {
+          gameStarted = true;
+          game = setInterval(draw, 150);
+        }
+        if (d === "UP" && dir !== "DOWN") dir = "UP";
+        if (d === "DOWN" && dir !== "UP") dir = "DOWN";
+        if (d === "LEFT" && dir !== "RIGHT") dir = "LEFT";
+        if (d === "RIGHT" && dir !== "LEFT") dir = "RIGHT";
+      }
+
+      function showWinPopup(numero) {
+        document.getElementById("unlocked").innerHTML =
+          "Você desbloqueou o número secreto anote ele: <b>" +
+          numero +
+          "</b><br><br>⚠️ Se perder em outra fase, volta para o início!";
+        document.getElementById("popupWin").style.display = "flex";
+        // Aqui devemos marcar a fase 1 como completada:
+        completarFase1();
+      }
+
+      function showLosePopup() {
+        document.getElementById("popupLose").style.display = "flex";
+      }
+
+      function restartGame() {
+        window.location.href = "fase1.html";
+      }
+      function nextLevel() {
+        window.location.href = "fase2.html";
+      }
+
+      function collision(head, array) {
+        for (let i = 0; i < array.length; i++) {
+          if (head.x === array[i].x && head.y === array[i].y) return true;
+        }
+        return false;
+      }
+
+      function draw() {
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // atualizar pontuação
+        document.getElementById(
+          "scoreDisplay"
+        ).innerText = `Pontuação: ${score} | Faltam: ${10 - score}`;
+
+        // desenha bombas
+        ctx.fillStyle = "orange";
+        for (let b of bombs) {
+          ctx.fillRect(b.x, b.y, box, box);
+        }
+
+        // desenha comida
+        ctx.fillStyle = "red";
+        ctx.fillRect(food.x, food.y, box, box);
+
+        if (!dir) return;
+
+        let snakeX = snake[0].x;
+        let snakeY = snake[0].y;
+
+        if (dir === "UP") snakeY -= box;
+        if (dir === "DOWN") snakeY += box;
+        if (dir === "LEFT") snakeX -= box;
+        if (dir === "RIGHT") snakeX += box;
+
+        // borda infinita
+        if (snakeX < 0) snakeX = canvas.width - box;
+        if (snakeX >= canvas.width) snakeX = 0;
+        if (snakeY < 0) snakeY = canvas.height - box;
+        if (snakeY >= canvas.height) snakeY = 0;
+
+        let newHead = { x: snakeX, y: snakeY };
+
+        // colisão corpo
+        if (collision(newHead, snake)) {
+          clearInterval(game);
+          showLosePopup();
+          return;
+        }
+
+        // colisão bombas
+        for (let b of bombs) {
+          if (newHead.x === b.x && newHead.y === b.y) {
+            clearInterval(game);
+            showLosePopup();
+            return;
+          }
+        }
+
+        // adiciona cabeça
+        snake.unshift(newHead);
+
+        // comer comida
+        if (snakeX === food.x && snakeY === food.y) {
+          score++;
+          food = {
+            x: Math.floor(Math.random() * cols) * box,
+            y: Math.floor(Math.random() * rows) * box,
+          };
+          bombs.push({
+            x: Math.floor(Math.random() * cols) * box,
+            y: Math.floor(Math.random() * rows) * box,
+          });
+        } else {
+          snake.pop();
+        }
+
+        // desenha cobra
+        for (let i = 0; i < snake.length; i++) {
+          ctx.fillStyle = i === 0 ? "lime" : "green";
+          ctx.fillRect(snake[i].x, snake[i].y, box, box);
+        }
+
+        // vitória
+        if (score >= 10) {
+          clearInterval(game);
+          showWinPopup("0");
+        }
+      }
+
+      function completarFase1() {
+        localStorage.setItem("fase1Completa", "true");
+      }
+
+      let devtoolsOpen = false;
+
+      const threshold = 160; // tamanho mínimo para detectar DevTools
+
+      setInterval(() => {
+        const widthThreshold =
+          window.outerWidth - window.innerWidth > threshold;
+        const heightThreshold =
+          window.outerHeight - window.innerHeight > threshold;
+        devtoolsOpen = widthThreshold || heightThreshold;
+
+        if (devtoolsOpen) {
+          alert(
+            "Inspecionar código detectado! Jogo pode não funcionar corretamente."
+          );
+          // Você pode até redirecionar:
+          window.location.href = "fase1.html";
+        }
+      }, 1000);
+
+      document.addEventListener("keydown", (e) => {
+        if (
+          e.key === "F12" ||
+          (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J")) ||
+          (e.ctrlKey && e.key === "U")
+        ) {
+          e.preventDefault();
+          alert("Quem é que ta tentando trapacear?");
+        }
+      });
+
+      document.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        alert("Clique com o botão direito desabilitado!");
+      });
+    </script>
+  </body>
+</html>

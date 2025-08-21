@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fase 2 - Memória</title>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background: #111;
+        color: white;
+        font-family: Arial, sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(4, 70px);
+        gap: 10px;
+        margin: 20px;
+      }
+      .card {
+        width: 70px;
+        height: 70px;
+        background: #444;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+        cursor: pointer;
+      }
+      .hidden {
+        background: #444;
+        color: transparent;
+      }
+      #timer {
+        font-size: 20px;
+        margin-bottom: 10px;
+      }
+
+      /* POPUPS */
+      .popup {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        justify-content: center;
+        align-items: center;
+        z-index: 999;
+      }
+      .popup-content {
+        background: white;
+        color: black;
+        padding: 20px;
+        border-radius: 15px;
+        text-align: center;
+        width: 80%;
+        max-width: 300px;
+        animation: scaleUp 0.3s ease;
+      }
+      @keyframes scaleUp {
+        from {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      .popup-content button {
+        margin-top: 15px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        background: green;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      .popup-content img {
+        width: 150px;
+        margin: 15px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Fase 2 - Memória</h1>
+    <p>Complete o jogo para desbloquear a letra!</p>
+    <div id="timer">Tempo restante: 30s</div>
+    <div class="grid" id="grid"></div>
+
+    <!-- POPUP DE VITÓRIA -->
+    <div id="popupWin" class="popup">
+      <div class="popup-content">
+        <h2>🎉 Número desbloqueado!</h2>
+        <img src="assets/vitoria.jpg" alt="Vitória" />
+        <p id="unlocked"></p>
+        <button onclick="nextLevel()">Continuar</button>
+      </div>
+    </div>
+
+    <!-- POPUP DE DERROTA -->
+    <div id="popupLose" class="popup">
+      <div class="popup-content">
+        <h2>💥 Você perdeu!</h2>
+        <img src="assets/perdeu.jpg" alt="Perdeu" />
+        <p>Voltando para a Fase 1...</p>
+        <button onclick="restartGame()">Reiniciar</button>
+      </div>
+    </div>
+
+    <!-- POPUP DE ACESSO NEGADO -->
+    <div id="popupBlocked" class="popup">
+      <div class="popup-content">
+        <h2>⚠️ Acesso negado!</h2>
+        <p>Querendo burlar o jogo né boboca?</p>
+        <img src="assets/trapaca.jpg" alt="Perdeu" />
+
+        <button onclick="goBack()">Voltar para a Fase 1</button>
+      </div>
+    </div>
+
+    <script>
+      // Checa se a fase anterior foi completada
+      window.addEventListener("load", () => {
+        const fase1Completa = localStorage.getItem("fase1Completa");
+        if (!fase1Completa) {
+          document.getElementById("popupBlocked").style.display = "flex";
+        }
+      });
+
+      function goBack() {
+        window.location.href = "fase1.html";
+      }
+
+      const grid = document.getElementById("grid");
+
+      // 12 frutas (6 pares)
+      let emojis = [
+        "🍎",
+        "🍌",
+        "🍇",
+        "🍓",
+        "🍉",
+        "🍍",
+        "🍎",
+        "🍌",
+        "🍇",
+        "🍓",
+        "🍉",
+        "🍍",
+      ];
+      emojis = emojis.sort(() => Math.random() - 0.5);
+
+      let first = null,
+        second = null,
+        lock = false,
+        matched = 0;
+      const totalPairs = emojis.length;
+
+      emojis.forEach((emoji) => {
+        const card = document.createElement("div");
+        card.className = "card hidden";
+        card.innerText = emoji;
+        card.dataset.value = emoji;
+
+        card.onclick = () => {
+          if (lock || !card.classList.contains("hidden")) return;
+          card.classList.remove("hidden");
+
+          if (!first) {
+            first = card;
+          } else {
+            second = card;
+            lock = true;
+            if (first.dataset.value === second.dataset.value) {
+              first = null;
+              second = null;
+              lock = false;
+              matched += 2;
+              if (matched === totalPairs) {
+                showWinPopup("3"); // letra desbloqueada
+                clearInterval(timerInterval);
+              }
+            } else {
+              setTimeout(() => {
+                first.classList.add("hidden");
+                second.classList.add("hidden");
+                first = null;
+                second = null;
+                lock = false;
+              }, 800);
+            }
+          }
+        };
+        grid.appendChild(card);
+      });
+
+      // Timer 30 segundos
+      let timeLeft = 30;
+      const timerDisplay = document.getElementById("timer");
+      const timerInterval = setInterval(() => {
+        timeLeft--;
+        timerDisplay.innerText = `Tempo restante: ${timeLeft}s`;
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          showLosePopup();
+        }
+      }, 1000);
+
+      function showWinPopup(letra) {
+        document.getElementById(
+          "unlocked"
+        ).innerHTML = `Você desbloqueou o número: <b>${letra}</b><br><br>⚠️ Se perder em outra fase, volta para o início!`;
+        document.getElementById("popupWin").style.display = "flex";
+        // Aqui devemos marcar a fase 1 como completada:
+        completarFase2();
+      }
+
+      function showLosePopup() {
+        document.getElementById("popupLose").style.display = "flex";
+      }
+
+      function restartGame() {
+        window.location.href = "fase1.html";
+      }
+
+      function nextLevel() {
+        window.location.href = "fase3.html";
+      }
+      function completarFase2() {
+        localStorage.setItem("fase2Completa", "true");
+      }
+
+      let devtoolsOpen = false;
+
+      const threshold = 160; // tamanho mínimo para detectar DevTools
+
+      setInterval(() => {
+        const widthThreshold =
+          window.outerWidth - window.innerWidth > threshold;
+        const heightThreshold =
+          window.outerHeight - window.innerHeight > threshold;
+        devtoolsOpen = widthThreshold || heightThreshold;
+
+        if (devtoolsOpen) {
+          alert(
+            "Inspecionar código detectado! Jogo pode não funcionar corretamente."
+          );
+          // Você pode até redirecionar:
+          // window.location.href = "fase1.html";
+        }
+      }, 1000);
+    </script>
+  </body>
+</html>

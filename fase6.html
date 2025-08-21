@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Última Fase - Código Completo</title>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background: #111;
+        color: white;
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        text-align: center;
+      }
+      h1,
+      p {
+        margin: 5px;
+      }
+      input {
+        padding: 10px 15px;
+        font-size: 18px;
+        border-radius: 8px;
+        border: none;
+        margin-top: 15px;
+        width: 300px;
+        text-align: center;
+        background: #222;
+        color: white;
+      }
+      .popup {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        justify-content: center;
+        align-items: center;
+        z-index: 999;
+      }
+      .popup-content {
+        background: white;
+        color: black;
+        padding: 20px;
+        border-radius: 15px;
+        text-align: center;
+        width: 80%;
+        max-width: 400px;
+        animation: scaleUp 0.3s ease;
+      }
+      @keyframes scaleUp {
+        from {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      .popup-content button {
+        margin-top: 15px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        background: green;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Última Fase</h1>
+    <p>
+      Última, fase. Parece que esse texto contém o link que leva pra sua
+      surpresa, mas ele está todo estranho. Tente desvendar para ter o código
+      completo.
+    </p>
+
+    <p><b>IVS86CfNYog-F_dUvfeyXeq_pf2_iNPHaPQHb5aRiiA</b></p>
+    <p>
+      <b
+        >01101101 01100001 01110100 01100101 01110101 01110011 01110011 01101001
+        01101100 01110110 01100001 01100011 01110010 01110011..--.. - .- -...
+        .-. . .--. --- ... .. - --- .-. .. . ...</b
+      >
+    </p>
+
+    <input type="text" id="urlInput" placeholder="Cole a URL aqui" />
+
+    <!-- POPUP DE INSTRUÇÃO -->
+    <div id="popupNext" class="popup">
+      <div class="popup-content">
+        <h2>🎉 Você acertou!</h2>
+        <p>
+          Agora entre na página <b>180824</b>. Em breve vai aparecer um novo
+          arquivo chamado <b>surpresa</b>!
+        </p>
+        <button onclick="closePopup()">Entendi!</button>
+      </div>
+    </div>
+
+    <!-- POPUP DE ACESSO NEGADO -->
+    <div id="popupBlocked" class="popup">
+      <div class="popup-content">
+        <h2>⚠️ Acesso negado!</h2>
+        <p>Querendo burlar o jogo né boboca?</p>
+        <img src="assets/trapaca.jpg" alt="Perdeu" />
+        <button onclick="goBack()">Voltar para a Fase secreta</button>
+      </div>
+    </div>
+
+    <script>
+      // Checa se a fase anterior foi completada
+      window.addEventListener("load", () => {
+        const fase3Completa = localStorage.getItem("fase3Completa");
+        if (!fase3Completa) {
+          document.getElementById("popupBlocked").style.display = "flex";
+        }
+      });
+      function goBack() {
+        window.location.href = "index2.html";
+      }
+
+      const input = document.getElementById("urlInput");
+      const popup = document.getElementById("popupNext");
+
+      input.addEventListener("input", () => {
+        const val = input.value.trim();
+        if (val === "https://github.com/mateussilvacrs?tab=repositories") {
+          popup.style.display = "flex";
+          input.value = "";
+        }
+      });
+
+      function closePopup() {
+        popup.style.display = "none";
+        input.focus();
+      }
+
+      let devtoolsOpen = false;
+
+      const threshold = 160; // tamanho mínimo para detectar DevTools
+
+      setInterval(() => {
+        const widthThreshold =
+          window.outerWidth - window.innerWidth > threshold;
+        const heightThreshold =
+          window.outerHeight - window.innerHeight > threshold;
+        devtoolsOpen = widthThreshold || heightThreshold;
+
+        if (devtoolsOpen) {
+          alert(
+            "Inspecionar código detectado! Jogo pode não funcionar corretamente."
+          );
+          // Você pode até redirecionar:
+          // window.location.href = "fase1.html";
+        }
+      }, 1000);
+    </script>
+  </body>
+</html>

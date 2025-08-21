@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jogo da Surpresa</title>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background: #111;
+        color: white;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+        color: #4caf50;
+      }
+
+      p {
+        font-size: 1.2rem;
+        max-width: 600px;
+        margin-bottom: 30px;
+        line-height: 1.6;
+      }
+
+      button {
+        padding: 12px 25px;
+        font-size: 18px;
+        border: none;
+        border-radius: 8px;
+        background: #4caf50;
+        color: white;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      button:hover {
+        background: #45a049;
+      }
+
+      .container {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0, 255, 100, 0.2);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🎮 Jogo da Surpresa</h1>
+      <p>
+        Quer ver uma surpresa? Aqui nesse game você vai desbloquear seu
+        presente.
+        <br /><br />
+        Preste atenção: você vai participar de <strong>5 jogos</strong>. Caso
+        perca 1 deles, você voltará ao desafio 1. <br /><br />
+        Na próxima etapa talvez você precise de ajuda,
+        <strong>anote cada número</strong> para desvendar o enigma. <br /><br />
+        Boa sorte e bom jogo! 🍀
+      </p>
+      <button onclick="startGame()">Iniciar Jogo</button>
+    </div>
+
+    <script>
+      function startGame() {
+        // Aqui você coloca o link da fase 1
+        window.location.href = "fase1.html";
+      }
+    </script>
+  </body>
+</html>

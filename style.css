@@ -1,0 +1,75 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #1a1a1a;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+.game-container {
+  text-align: center;
+  background: #2c2c2c;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+  width: 90%;
+  height: 600px;
+  max-width: 800px;
+}
+
+canvas {
+  background: #000;
+  display: block;
+  margin: 20px auto;
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+}
+
+button {
+  padding: 10px 20px;
+  margin-top: 20px;
+  background: #ff4081;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:hover {
+  background: #e91e63;
+}
+
+#letras-desbloqueadas {
+  margin-top: 20px;
+  font-size: 28px;
+  letter-spacing: 10px;
+}
+
+/* Controles mobile para cobrinha */
+#controles {
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
+  gap: 10px;
+}
+
+.controle-btn {
+  width: 60px;
+  height: 60px;
+  display: flex;
+
+  background: #ff4081;
+  color: #fff;
+  border-radius: 10px;
+  font-size: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+  touch-action: manipulation;
+}
