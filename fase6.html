@@ -151,28 +151,7 @@
       </div>
     </div>
 
-    <!-- POPUP DE ACESSO NEGADO -->
-    <div id="popupBlocked" class="popup">
-      <div class="popup-content">
-        <h2>⚠️ Acesso negado!</h2>
-        <p>Querendo burlar o jogo né boboca?</p>
-        <img src="assets/trapaca.jpg" alt="Perdeu" />
-        <button onclick="goBack()">Voltar para a Fase secreta</button>
-      </div>
-    </div>
-
     <script>
-      // Checa se a fase anterior foi completada
-      window.addEventListener("load", () => {
-        const fase3Completa = localStorage.getItem("fase3Completa");
-        if (!fase3Completa) {
-          document.getElementById("popupBlocked").style.display = "flex";
-        }
-      });
-      function goBack() {
-        window.location.href = "index2.html";
-      }
-
       const input = document.getElementById("urlInput");
       const popup = document.getElementById("popupNext");
 
